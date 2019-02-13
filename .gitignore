@@ -1,0 +1,11 @@
+# Folder to not commit
+src/__pycache__
+
+# Files to not commit
+debugging.py
+
+# File types to not commit
+*.pyc
+*.o
+*.vs
+*.db
