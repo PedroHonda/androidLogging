@@ -1,5 +1,5 @@
-# Template from: https://stackoverflow.com/questions/7546050/switch-between-two-frames-in-tkinter
-#################################################################################################
+# Template from: https://stackoverflow.com/questions/7546050 by Bryan Oakley
+############################################################################
 import tkinter as tk                # python 3
 from tkinter import font  as tkfont # python 3
 from tkinter import ttk             # python 3
