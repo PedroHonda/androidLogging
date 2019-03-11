@@ -1,6 +1,6 @@
 # Folder to not commit
 src/__pycache__
-logs/
+Logging/
 
 # Files to not commit
 debugging.py

@@ -6,6 +6,7 @@ from tkinter import ttk
 
 import subprocess
 import adbCommands
+import threading
 
 class AndroidLoggingGUI(tk.Tk):
 
@@ -62,12 +63,39 @@ class StartPage(tk.Frame):
         # Drop Menu containing all devices attached
         self.dropMenuDevicesSet = tk.StringVar()
         self.dropMenuDevicesSet.set(self.devices[0])
-        self.dropMenuDevices = ttk.OptionMenu(self, self.dropMenuDevicesSet, self.devices[0], *self.devices, command=self.changeDevice)
+        self.dropMenuDevices = tk.OptionMenu(self, self.dropMenuDevicesSet, self.devices[0], command=self.updateADBclass)
         self.dropMenuDevices.grid(row=0, column=1, sticky="nsew")
         # Button to update current devices
-        dropMenuDevicesUpdate = ttk.Button(self, text="UPDATE", command=self.updateADBdevices)
+        dropMenuDevicesUpdate = ttk.Button(self, text="UPDATE", command=self.refreshDevices)
         dropMenuDevicesUpdate.grid(row=0, column=2, sticky="nsew")
         
+        startVideo = tk.Button(self, text="Rooting", bg="#000000", fg="#FFFFFF", command=self.adbRooting)
+        startVideo.grid(row=1, column=0, columnspan=3, sticky="nsew")
+
+        startVideo = tk.Button(self, text="Start Video", bg="PaleGreen1", command=self.startingVideo)
+        startVideo.grid(row=2, column=0, sticky="nsew")
+        stopVideo = tk.Button(self, text="Stop Video", bg="#BB0000", command=self.stoppingVideo)
+        stopVideo.grid(row=2, column=1, sticky="nsew")
+
+        startAP = tk.Button(self, text="Start AP", bg="PaleGreen1", command=self.startingAP)
+        startAP.grid(row=3, column=0, sticky="nsew")
+        stopAP = tk.Button(self, text="Stop AP", bg="#BB0000", command=self.stoppingAP)
+        stopAP.grid(row=3, column=1, sticky="nsew")
+
+        startTCP = tk.Button(self, text="Start TCP", bg="PaleGreen1", command=self.startingTCP)
+        startTCP.grid(row=4, column=0, sticky="nsew")
+        stopTCP = tk.Button(self, text="Stop TCP", bg="#BB0000", command=self.stoppingTCP)
+        stopTCP.grid(row=4, column=1, sticky="nsew")
+
+        separator2 = ttk.Separator(self, orient='horizontal')
+        separator2.grid(row=5, column=0, columnspan=3, sticky="nswe")
+
+        cleanLogs = tk.Button(self, text="Cleaning Logs", bg="#0022BB", fg="#FFFFFF", command=self.cleanLogs)
+        cleanLogs.grid(row=6, column=0, columnspan=2, sticky="nsew")
+
+        pull = tk.Button(self, text="Pull Logs", bg="#0022BB", fg="#FFFFFF", command=self.pullLogs)
+        pull.grid(row=7, column=0, columnspan=2, sticky="nsew")
+
 
     def updateADBdevices(self):
         self.devices = []
@@ -80,10 +108,7 @@ class StartPage(tk.Frame):
             self.devices.append("No Devices attached")
         else:
             self.android = self.devices[0]
-
-    def changeDevice(self, value):
-        if "No Devices attached" not in value:
-            self.android = value
+            self.adb = adbCommands.adbClass(self.android)
 
     def refreshDevices(self):
         self.updateADBdevices()
@@ -92,6 +117,36 @@ class StartPage(tk.Frame):
         for d in self.devices:
             menu.add_command(label=d, command=lambda value=d: self.dropMenuDevicesSet.set(value))
 
+    def updateADBclass(self):
+        self.adb = adbCommands.adbClass(self.android)
+        
+    def adbRooting(self):
+        self.adb.adbRoot()
+
+    def startingVideo(self):
+        t = threading.Thread(target = self.adb.startVideo)
+        t.start()
+    def stoppingVideo(self):
+        self.adb.stopVideo()
+
+    def startingAP(self):
+        t = threading.Thread(target = self.adb.startAPlog)
+        t.start()
+    def stoppingAP(self):
+        self.adb.stopAPlog()
+
+    def startingTCP(self):
+        t = threading.Thread(target = self.adb.startTCPdump)
+        t.start()
+    def stoppingTCP(self):
+        self.adb.stopTCPdump()
+
+    def cleanLogs(self):
+        self.adb.cleanLogging()
+
+    def pullLogs(self):
+        subprocess.call("adb pull /sdcard/Logging/")
+        
 
 class PageOne(tk.Frame):
 
