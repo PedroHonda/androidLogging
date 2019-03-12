@@ -1,8 +1,18 @@
 # Based on templates from: https://stackoverflow.com/questions/7546050 by Bryan Oakley
 ######################################################################################
-import tkinter as tk
-from tkinter import font  as tkfont
-from tkinter import ttk
+import sys
+if sys.version_info[0] == 3:
+    import tkinter as tk                
+    from tkinter import messagebox as tkMessageBox
+    from tkinter import font  as tkfont 
+    from tkinter import ttk             
+    from tkinter import filedialog
+else:
+    import Tkinter as tk     
+    import tkFont as tkfont  
+    import ttk
+    import tkFileDialog as filedialog
+    import tkMessageBox
 
 import subprocess
 import adbCommands
@@ -20,7 +30,7 @@ class AndroidLoggingGUI(tk.Tk):
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
         
-        self.centralize(550,550)
+        self.centralize(450,250)
         
         self.frames = {}
         for F in (StartPage, PageOne, PageTwo):
@@ -57,44 +67,68 @@ class StartPage(tk.Frame):
         self.controller = controller
         self.updateADBdevices()
 
+        #self.config(bg="#91D5F9")
+
+        # Integer to help on development
+        currentRow = 0
+
         # Label to Drop Down Menu for Android devices available
-        dropMenuDevicesText = ttk.Label(self, text="Choose an Android device:")
-        dropMenuDevicesText.grid(row=0, column=0, sticky="nsew")
+        tk.Label(self, text="Choose an Android device:", anchor="e", width="20").grid(row=currentRow, column=0, sticky="nsew")
         # Drop Menu containing all devices attached
         self.dropMenuDevicesSet = tk.StringVar()
         self.dropMenuDevicesSet.set(self.devices[0])
         self.dropMenuDevices = tk.OptionMenu(self, self.dropMenuDevicesSet, self.devices[0], command=self.updateADBclass)
-        self.dropMenuDevices.grid(row=0, column=1, sticky="nsew")
+        self.dropMenuDevices.grid(row=currentRow, column=1, sticky="nsew")
         # Button to update current devices
         dropMenuDevicesUpdate = ttk.Button(self, text="UPDATE", command=self.refreshDevices)
-        dropMenuDevicesUpdate.grid(row=0, column=2, sticky="nsew")
-        
-        startVideo = tk.Button(self, text="Rooting", bg="#000000", fg="#FFFFFF", command=self.adbRooting)
-        startVideo.grid(row=1, column=0, columnspan=3, sticky="nsew")
+        dropMenuDevicesUpdate.grid(row=currentRow, column=2, sticky="nsew")
 
-        startVideo = tk.Button(self, text="Start Video", bg="PaleGreen1", command=self.startingVideo)
-        startVideo.grid(row=2, column=0, sticky="nsew")
-        stopVideo = tk.Button(self, text="Stop Video", bg="#BB0000", command=self.stoppingVideo)
-        stopVideo.grid(row=2, column=1, sticky="nsew")
+        currentRow += 1
+        rooting = tk.Button(self, text="Rooting", bg="#000000", fg="#FFFFFF", command=self.adbRooting)
+        rooting.grid(row=currentRow, column=0, columnspan=3, sticky="nsew")
 
-        startAP = tk.Button(self, text="Start AP", bg="PaleGreen1", command=self.startingAP)
-        startAP.grid(row=3, column=0, sticky="nsew")
-        stopAP = tk.Button(self, text="Stop AP", bg="#BB0000", command=self.stoppingAP)
-        stopAP.grid(row=3, column=1, sticky="nsew")
+        currentRow += 1
+        tk.Label(self, text="Video capture:", width="30", anchor="e").grid(row=currentRow, column=1, sticky="nswe")
+        self.collectVideoVar = tk.IntVar()
+        self.collectVideo = tk.Checkbutton(self, variable=self.collectVideoVar)
+        self.collectVideo.grid(row=currentRow, column=2)
 
-        startTCP = tk.Button(self, text="Start TCP", bg="PaleGreen1", command=self.startingTCP)
-        startTCP.grid(row=4, column=0, sticky="nsew")
-        stopTCP = tk.Button(self, text="Stop TCP", bg="#BB0000", command=self.stoppingTCP)
-        stopTCP.grid(row=4, column=1, sticky="nsew")
+        currentRow += 1
+        tk.Label(self, text="AP log:", width="30", anchor="e").grid(row=currentRow, column=1, sticky="nswe")
+        self.collectAPVar = tk.IntVar()
+        self.collectAP = tk.Checkbutton(self, variable=self.collectAPVar)
+        self.collectAP.grid(row=currentRow, column=2)
 
+        currentRow += 1
+        tk.Label(self, text="TCP log:", width="30", anchor="e").grid(row=currentRow, column=1, sticky="nswe")
+        self.collectTCPVar = tk.IntVar()
+        self.collectTCP = tk.Checkbutton(self, variable=self.collectTCPVar)
+        self.collectTCP.grid(row=currentRow, column=2)
+
+        currentRow += 1
         separator2 = ttk.Separator(self, orient='horizontal')
-        separator2.grid(row=5, column=0, columnspan=3, sticky="nswe")
+        separator2.grid(row=currentRow, column=0, columnspan=3, sticky="nswe")
 
+        currentRow += 1
         cleanLogs = tk.Button(self, text="Cleaning Logs", bg="#0022BB", fg="#FFFFFF", command=self.cleanLogs)
-        cleanLogs.grid(row=6, column=0, columnspan=2, sticky="nsew")
+        cleanLogs.grid(row=currentRow, column=0, columnspan=3, sticky="nsew")
 
+        currentRow += 1
+        self.collectLogs = tk.Button(self, text="Start Log Collection", bg="#0022BB", fg="#FFFFFF", command=self.startLogCollection)
+        self.collectLogs.grid(row=currentRow, column=0, columnspan=3, sticky="nsew")
+
+        currentRow += 1
+        self.stopLogs = tk.Button(self, text="Stop Log Collection", bg="#0022BB", fg="#FFFFFF", command=self.stopLogCollection, state="disabled")
+        self.stopLogs.grid(row=currentRow, column=0, columnspan=3, sticky="nsew")
+
+        currentRow += 1
         pull = tk.Button(self, text="Pull Logs", bg="#0022BB", fg="#FFFFFF", command=self.pullLogs)
-        pull.grid(row=7, column=0, columnspan=2, sticky="nsew")
+        pull.grid(row=currentRow, column=0, columnspan=3, sticky="nsew")
+
+        # added resizing configs
+        self.columnconfigure(0, weight=3)
+        self.columnconfigure(1, weight=3)
+        self.rowconfigure(1, weight=1)
 
 
     def updateADBdevices(self):
@@ -123,30 +157,43 @@ class StartPage(tk.Frame):
     def adbRooting(self):
         self.adb.adbRoot()
 
-    def startingVideo(self):
-        t = threading.Thread(target = self.adb.startVideo)
-        t.start()
-    def stoppingVideo(self):
-        self.adb.stopVideo()
-
-    def startingAP(self):
-        t = threading.Thread(target = self.adb.startAPlog)
-        t.start()
-    def stoppingAP(self):
-        self.adb.stopAPlog()
-
-    def startingTCP(self):
-        t = threading.Thread(target = self.adb.startTCPdump)
-        t.start()
-    def stoppingTCP(self):
-        self.adb.stopTCPdump()
-
     def cleanLogs(self):
         self.adb.cleanLogging()
 
     def pullLogs(self):
         subprocess.call("adb pull /sdcard/Logging/")
+
+    def startLogCollection(self):
+        if self.collectVideoVar.get():
+            tVideo = threading.Thread(target = self.adb.startVideo)
+            tVideo.start()
+        if self.collectAPVar.get():
+            tAP = threading.Thread(target = self.adb.startAPlog)
+            tAP.start()
+        if self.collectTCPVar.get():
+            tTCP = threading.Thread(target = self.adb.startTCPdump)
+            tTCP.start()
+        self.collectVideo.config(state="disabled")
+        self.collectAP.config(state="disabled")
+        self.collectTCP.config(state="disabled")
+        self.collectLogs.config(state="disabled")
+        self.stopLogs.config(state="active")
         
+    def stopLogCollection(self):
+        if self.collectVideoVar.get():
+            tVideo = threading.Thread(target = self.adb.stopVideo)
+            tVideo.start()
+        if self.collectAPVar.get():
+            tAP = threading.Thread(target = self.adb.stopAPlog)
+            tAP.start()
+        if self.collectTCPVar.get():
+            tTCP = threading.Thread(target = self.adb.stopTCPdump)
+            tTCP.start()
+        self.collectVideo.config(state="active")
+        self.collectAP.config(state="active")
+        self.collectTCP.config(state="active")
+        self.collectLogs.config(state="active")
+        self.stopLogs.config(state="disabled")
 
 class PageOne(tk.Frame):
 
