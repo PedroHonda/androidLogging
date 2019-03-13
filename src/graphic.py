@@ -17,6 +17,7 @@ else:
 import subprocess
 import adbCommands
 import threading
+import time
 
 class AndroidLoggingGUI(tk.Tk):
 
@@ -30,7 +31,7 @@ class AndroidLoggingGUI(tk.Tk):
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
         
-        self.centralize(450,250)
+        self.centralize(500,180)
         
         self.frames = {}
         for F in (StartPage, PageOne, PageTwo):
@@ -72,63 +73,63 @@ class StartPage(tk.Frame):
         # Integer to help on development
         currentRow = 0
 
+        for i in range(0,8):
+            self.columnconfigure(i, weight=1)
+        
         # Label to Drop Down Menu for Android devices available
-        tk.Label(self, text="Choose an Android device:", anchor="e", width="20").grid(row=currentRow, column=0, sticky="nsew")
+        tk.Label(self, text="Choose an Android device:", anchor="e").grid(row=currentRow, column=0, columnspan=3, sticky="nsew")
         # Drop Menu containing all devices attached
         self.dropMenuDevicesSet = tk.StringVar()
         self.dropMenuDevicesSet.set(self.devices[0])
         self.dropMenuDevices = tk.OptionMenu(self, self.dropMenuDevicesSet, self.devices[0], command=self.updateADBclass)
-        self.dropMenuDevices.grid(row=currentRow, column=1, sticky="nsew")
+        self.dropMenuDevices.grid(row=currentRow, column=3, columnspan=3, sticky="nsew")
         # Button to update current devices
         dropMenuDevicesUpdate = ttk.Button(self, text="UPDATE", command=self.refreshDevices)
-        dropMenuDevicesUpdate.grid(row=currentRow, column=2, sticky="nsew")
+        dropMenuDevicesUpdate.grid(row=currentRow, column=6, columnspan=2, sticky="nsew")
 
         currentRow += 1
         rooting = tk.Button(self, text="Rooting", bg="#000000", fg="#FFFFFF", command=self.adbRooting)
-        rooting.grid(row=currentRow, column=0, columnspan=3, sticky="nsew")
+        rooting.grid(row=currentRow, column=0, columnspan=8, sticky="nsew")
 
         currentRow += 1
-        tk.Label(self, text="Video capture:", width="30", anchor="e").grid(row=currentRow, column=1, sticky="nswe")
+        tk.Label(self, text="Video capture:", anchor="e").grid(row=currentRow, column=1, sticky="nswe")
         self.collectVideoVar = tk.IntVar()
         self.collectVideo = tk.Checkbutton(self, variable=self.collectVideoVar)
         self.collectVideo.grid(row=currentRow, column=2)
 
         currentRow += 1
-        tk.Label(self, text="AP log:", width="30", anchor="e").grid(row=currentRow, column=1, sticky="nswe")
+        tk.Label(self, text="AP log:", anchor="e").grid(row=currentRow, column=1, sticky="nswe")
         self.collectAPVar = tk.IntVar()
         self.collectAP = tk.Checkbutton(self, variable=self.collectAPVar)
         self.collectAP.grid(row=currentRow, column=2)
 
         currentRow += 1
-        tk.Label(self, text="TCP log:", width="30", anchor="e").grid(row=currentRow, column=1, sticky="nswe")
+        tk.Label(self, text="TCP log:", anchor="e").grid(row=currentRow, column=1, sticky="nswe")
         self.collectTCPVar = tk.IntVar()
         self.collectTCP = tk.Checkbutton(self, variable=self.collectTCPVar)
         self.collectTCP.grid(row=currentRow, column=2)
 
         currentRow += 1
         separator2 = ttk.Separator(self, orient='horizontal')
-        separator2.grid(row=currentRow, column=0, columnspan=3, sticky="nswe")
+        separator2.grid(row=currentRow, column=0, columnspan=8, sticky="nswe")
 
         currentRow += 1
-        cleanLogs = tk.Button(self, text="Cleaning Logs", bg="#0022BB", fg="#FFFFFF", command=self.cleanLogs)
-        cleanLogs.grid(row=currentRow, column=0, columnspan=3, sticky="nsew")
-
-        currentRow += 1
-        self.collectLogs = tk.Button(self, text="Start Log Collection", bg="#0022BB", fg="#FFFFFF", command=self.startLogCollection)
-        self.collectLogs.grid(row=currentRow, column=0, columnspan=3, sticky="nsew")
-
-        currentRow += 1
-        self.stopLogs = tk.Button(self, text="Stop Log Collection", bg="#0022BB", fg="#FFFFFF", command=self.stopLogCollection, state="disabled")
-        self.stopLogs.grid(row=currentRow, column=0, columnspan=3, sticky="nsew")
-
-        currentRow += 1
-        pull = tk.Button(self, text="Pull Logs", bg="#0022BB", fg="#FFFFFF", command=self.pullLogs)
-        pull.grid(row=currentRow, column=0, columnspan=3, sticky="nsew")
+        cleanLogs = tk.Button(self, text="CLEAN", bg="#0022BB", fg="#FFFFFF", command=self.cleanLogs, width=5)
+        cleanLogs.grid(row=currentRow, column=0, sticky="nsew", columnspan=2)
+        self.collectLogs = tk.Button(self, text="START", bg="#0022BB", fg="#FFFFFF", command=self.startLogCollection, width=5)
+        self.collectLogs.grid(row=currentRow, column=2, sticky="nsew", columnspan=2)
+        self.stopLogs = tk.Button(self, text="STOP", bg="#0022BB", fg="#FFFFFF", command=self.stopLogCollection, state="disabled", width=5)
+        self.stopLogs.grid(row=currentRow, column=4, sticky="nsew", columnspan=2)
+        pull = tk.Button(self, text="PULL", bg="#0022BB", fg="#FFFFFF", command=self.pullLogs, width=5)
+        pull.grid(row=currentRow, column=6, sticky="nsew", columnspan=2)
 
         # added resizing configs
-        self.columnconfigure(0, weight=3)
-        self.columnconfigure(1, weight=3)
-        self.rowconfigure(1, weight=1)
+        self.rowconfigure(0, weight=3)
+        self.rowconfigure(1, weight=2)
+        self.rowconfigure(2, weight=1)
+        self.rowconfigure(3, weight=1)
+        self.rowconfigure(4, weight=1)
+        self.rowconfigure(5, weight=1)
 
 
     def updateADBdevices(self):
@@ -161,7 +162,7 @@ class StartPage(tk.Frame):
         self.adb.cleanLogging()
 
     def pullLogs(self):
-        subprocess.call("adb pull /sdcard/Logging/")
+        subprocess.call("adb pull /sdcard/Logging/ ./logs/" + str(time.strftime("%Y%m%d%H%M%S") + "/"))
 
     def startLogCollection(self):
         if self.collectVideoVar.get():
