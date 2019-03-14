@@ -23,4 +23,14 @@ Android Logging Tool
 ## ADB commands to collect logs
 
 - Many adb commands used here are standard, but in any case, feel free to modify `/src/adbCommands.py` to your liking
-- For instance, I will base this on Motorola devices
+
+## How to use the tool
+
+- 1. Connect your Android device to your PC.
+- 2. Run the `run.py` available.
+- 3. Make sure the device selected (barcode) is the one you want to collect logs.
+- 4. To collect TCPdump logs, you need to root your device using `Rooting` button.
+- 5. Select the log types you want to collect.
+- 6. Best practices is to Clean the log folder. Then, click `START` button to start logging.
+- 7. And finally hit `STOP` when you are satisfied.
+- 8. To copy to your machine, click `PULL`, and logs will be named after the current timestamp under `logs/` folder.
