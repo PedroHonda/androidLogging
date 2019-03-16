@@ -21,11 +21,11 @@ class adbClass():
         """ 
             adb shell ps -A | grep screenrecord
             -- This gives some information about the process such as its PID, which can be used to kill the process with:
-            -- adb shell kill <PID>
+            -- adb shell kill -2 <PID>
         """
         psVideo = subprocess.getoutput("adb -s " + self.serialno + " shell ps -A | grep screenrecord").split()[1]
         if psVideo:
-            subprocess.call("adb -s " + self.serialno + " shell kill " + psVideo)
+            subprocess.call("adb -s " + self.serialno + " shell kill -2 " + psVideo)
             return True
         else:
             return False
@@ -34,17 +34,17 @@ class adbClass():
         """ 
             adb shell "logcat > /sdcard/Logging/APlogging.txt"
         """
-        subprocess.call("adb -s " + self.serialno + " shell \"logcat > /sdcard/Logging/APlogging.txt\"")
+        subprocess.call("adb -s " + self.serialno + " shell \"logcat -b all > /sdcard/Logging/APlogging.txt\"")
 
     def stopAPlog(self):
         """ 
             adb shell ps -A | grep logcat
             -- This gives some information about the process such as its PID, which can be used to kill the process with:
-            -- adb shell kill <PID>
+            -- adb shell kill -2 <PID>
         """
         psLogcat = subprocess.getoutput("adb -s " + self.serialno + " shell ps -A | grep logcat").split()[1]
         if psLogcat:
-            subprocess.call("adb -s " + self.serialno + " shell kill " + psLogcat)
+            subprocess.call("adb -s " + self.serialno + " shell kill -2 " + psLogcat)
             return True
         else:
             return False
@@ -59,11 +59,11 @@ class adbClass():
         """ 
             adb shell ps -A | grep tcpdump
             -- This gives some information about the process such as its PID, which can be used to kill the process with:
-            -- adb shell kill <PID>
+            -- adb shell kill -2 <PID>
         """
         psTCP = subprocess.getoutput("adb -s " + self.serialno + " shell ps -A | grep tcpdump").split()[1]
         if psTCP:
-            subprocess.call("adb -s " + self.serialno + " shell kill " + psTCP)
+            subprocess.call("adb -s " + self.serialno + " shell kill -2 " + psTCP)
             return True
         else:
             return False
