@@ -67,7 +67,8 @@ class StartPage(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         self.updateADBdevices()
-        subprocess.call("mkdir logs")
+        if "logs" not in subprocess.getoutput("ls"):
+            subprocess.call("mkdir logs")
 
         #self.config(bg="#91D5F9")
 
